@@ -34,7 +34,8 @@
       this.radius =
         (((Math.random() * cfg.ringsCount) | 0) * ph) / cfg.ringsCount;
       this.impact = this.radius / ph;
-      this.velocity = cfg.minVelocity + Math.random() * cfg.minVelocity;
+      this.velocity =
+        cfg.minVelocity + Math.random() * cfg.minVelocity - this.impact;
     }
 
     refresh() {
@@ -54,10 +55,11 @@
         cy + sin * (ph + this.radius) - offsetY * paralaxY - paralaxX * offsetX;
 
       let distanceToC = Math.hypot(x - cx, y - cy);
+      let distanceToM = Math.hypot(x - mx, y - my);
 
       let optic = sin * this.size * this.impact * 0.7;
-
-      let size = this.size + optic;
+      let mouseEffect = distanceToM <= 50 ? (1 - distanceToM / 50) * 25 : 0;
+      let size = this.size + optic + mouseEffect;
 
       // Color Palette
       let shade = this.angle;
@@ -66,13 +68,13 @@
       let color = `hsl(${shade}, ${saturation}%, ${brightness}%)`;
 
       if (distanceToC > ph - 1 || sin > 0) {
-        ctx.fillStyle = color;
+        ctx.strokeStyle = ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, size, 0, 2 * Math.PI);
-        ctx.fill();
+        distanceToM <= 50 ? ctx.stroke() : ctx.fill();
       }
 
-      this.angle = (this.angle + this.velocity) % 360;
+      this.angle = (this.angle - this.velocity) % 360;
     }
   }
 
@@ -84,10 +86,26 @@
   }
   createStardust();
 
+  //Backgrounds
+  let bg1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, cx);
+  bg1.addColorStop(0, `rgb(10, 10, 10)`);
+  bg1.addColorStop(0.5, `rgb(10, 10, 20)`);
+  bg1.addColorStop(1, `rgb(30, 10, 40)`);
+
+  // Optional
+  //   let bg2 = ctx.createRadialGradient(cx, cy, 0, cx, cy, cx);
+  //   bg2.addColorStop(0, `rgb(255, 255, 255)`);
+  //   bg2.addColorStop(0.15, `rgb(255, 255, 255)`);
+  //   bg2.addColorStop(0.16, `rgb(255, 200, 0)`);
+  //   bg2.addColorStop(0.23, `rgb(255, 0, 0)`);
+  //   bg2.addColorStop(0.45, `rgb(255, 00, 25)`);
+  //   bg2.addColorStop(0.85, `rgb(9, 9, 25)`);
+  //   bg2.addColorStop(1, `rgb(0, 0, 20)`);
+
   function loop() {
     requestAnimationFrame(loop);
     ctx.globalCompositeOperation = `normal`;
-    ctx.fillStyle = `rgb(22, 22, 22)`;
+    ctx.fillStyle = bg1;
     ctx.fillRect(0, 0, cw, ch);
     ctx.globalCompositeOperation = ` lighter`;
     orbsList.map((e) => e.refresh());
