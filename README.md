@@ -1,2 +1,3 @@
 # Particles Animation JS
-Vanilla JS Particles Animation
+
+![Preview](https://github.com/thenavik/particles-animation-js/blob/main/img/preview.gif)
